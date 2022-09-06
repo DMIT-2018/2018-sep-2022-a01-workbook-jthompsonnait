@@ -9,4 +9,4 @@
   </Connection>
 </Query>
 
-Artists.OrderBy(x => x.Name)
+Artists.OrderBy(x => x.Name).Select(x => new { name = x.Name})
