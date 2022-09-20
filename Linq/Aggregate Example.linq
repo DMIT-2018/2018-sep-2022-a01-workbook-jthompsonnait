@@ -44,7 +44,7 @@
 
 //  Query
 (from x in Tracks
-select x.Milliseconds).Average()
+ select x.Milliseconds).Average()
 
 //  Method
 //  Using aggregate first
@@ -64,19 +64,132 @@ Tracks.Select(x => x.Milliseconds).Average();
 //		   Artist points to a single parent record.	
 //		   Tracks points to the collection of child records (Tracks) of that album.
 
+Albums;
 
+//  Filter by the 60's
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970)
+	.Select(x => x)
+	.Dump();
 
+//  Show the album title and artists
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970)
+	.Select(x => new
+	{
+		AlblumTitle = x.Title,
+		Artist = x.Artist.Name
+	}
+	)
+	.Dump();
 
+//  Add the track count
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970)
+	.Select(x => new
+	{
+		AlblumTitle = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = x.Tracks.Count()
+	}
+	)
+	.Dump();
 
+//  Filter by having tracks
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970
+	&& x.Tracks.Count() > 0)
+	.Select(x => new
+	{
+		AlblumTitle = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = x.Tracks.Count()
+	}
+	)
+	.Dump();
 
+//  Find the longest track
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970
+	&& x.Tracks.Count() > 0)
+	.Select(x => new
+	{
+		AlblumTitle = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = x.Tracks.Count(),
+		LongestTrack = x.Tracks.Max(t => t.Milliseconds /1000),  //  converts from milliseconds to seconds.
+		lt = x.Tracks.Select( tr => tr.Milliseconds /1000).Max()
+	}
+	)
+	.Dump();
 
+//  Find shortest track
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970
+	&& x.Tracks.Count() > 0)
+	.Select(x => new
+	{
+		AlblumTitle = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = x.Tracks.Count(),
+		LongestTrack = x.Tracks.Max(t => t.Milliseconds / 1000),  //  converts from milliseconds to seconds.
+		lt = x.Tracks.Select(tr => tr.Milliseconds / 1000).Max(),
+		ShortestTrack = x.Tracks.Min(t => t.Milliseconds / 1000)
+	}
+	)
+	.Dump();
 
+//  Find total price
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970
+	&& x.Tracks.Count() > 0)
+	.Select(x => new
+	{
+		AlblumTitle = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = x.Tracks.Count(),
+		LongestTrack = x.Tracks.Max(t => t.Milliseconds / 1000),  //  converts from milliseconds to seconds.
+		lt = x.Tracks.Select(tr => tr.Milliseconds / 1000).Max(),
+		ShortestTrack = x.Tracks.Min(t => t.Milliseconds / 1000),
+		TotalPrice = x.Tracks.Sum(t => t.UnitPrice)
+	}
+	)
+	.Dump();
 
+//  Average Length
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970
+	&& x.Tracks.Count() > 0)
+	.Select(x => new
+	{
+		AlblumTitle = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = x.Tracks.Count(),
+		LongestTrack = x.Tracks.Max(t => t.Milliseconds / 1000),  //  converts from milliseconds to seconds.
+		lt = x.Tracks.Select(tr => tr.Milliseconds / 1000).Max(),
+		ShortestTrack = x.Tracks.Min(t => t.Milliseconds / 1000),
+		TotalPrice = x.Tracks.Sum(t => t.UnitPrice),
+		AverageTrack = x.Tracks.Average(t => t.Milliseconds / 1000)
+	}
+	)
+	.Dump();
 
-
-
-
-
-
-
+//  Track Name
+Albums
+	.Where(x => x.ReleaseYear >= 1960 && x.ReleaseYear < 1970
+	&& x.Tracks.Count() > 0)
+	.Select(x => new
+	{
+		AlblumTitle = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = x.Tracks.Count(),
+		LongestTrack = x.Tracks.Max(t => t.Milliseconds / 1000),  //  converts from milliseconds to seconds.
+		LongestName = ().
+		lt = x.Tracks.Select(tr => tr.Milliseconds / 1000).Max(),
+		ShortestTrack = x.Tracks.Min(t => t.Milliseconds / 1000),
+		TotalPrice = x.Tracks.Sum(t => t.UnitPrice),
+		AverageTrack = x.Tracks.Average(t => t.Milliseconds / 1000)
+	}
+	)
+	.Dump();
 
