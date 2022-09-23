@@ -20,7 +20,7 @@
 
 //  ways to group
 //		a)  By a single property (colum, field, attribute, vale)  groupname.Key
-//		b)	By a set of properties (anonymouse dataset key)  groupname.Key.PropertyName
+//		b)	By a set of properties (anonymouse key set)  groupname.Key.PropertyName
 //		c)	By using an entity (x.navproperty)  **  Try to avoid **
 
 //  Concept Processing.
@@ -46,14 +46,14 @@
 
 Albums
 	.OrderBy(x => x.ReleaseYear);
-	
+
 //	Display albums grouped by ReleaseYear
 //	NOt one display of albums but displays of album for a specified value (ReleaseYear)
 //	Explucut request to breakup the display into desired "piles' (mini-collections)
 
 Albums
 	.GroupBy(x => x.ReleaseYear);
-	
+
 //	Query Syntax
 from x in Albums
 group x by x.ReleaseYear;
@@ -65,22 +65,64 @@ Albums
 	{
 		Year = mc.Key,
 		NumberOfAlbums = mc.Count()  // processing of "mini collection" data
-	}) //  The Select is processing each mini collections one at a time. 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	}); //  The Select is processing each mini collections one at a time. 
+
+//  Query Syntax
+//  Using this syntax you MUST specify the name you wish to use to refer to the
+//   group (mini-collection) collection
+
+from a in Albums
+	// orderby a.ReleaseYear:  Would be valid because "a" is in cntext
+	// orderby eachgPile.Key:  Would be invalid because "eachgPile" is not in context
+group a by a.ReleaseYear into eachgPile
+//  orderby a.ReleaseYear:  Would be invalid because "a" is out of vontext, the group name is eachgPile
+// orderby eachgPile.Key:  Would be valid because "EachgPile" is currently in context and KEY is the release year
+select new
+{
+	Year = eachgPile.Key, //  Key Component
+	NumberofAlbums = eachgPile.Count()  //  processing of "mini-collection" data
+};
+
+//  Use a multiple set of criteria (properties) to form the group
+//   also include a nested query to report on the "min-collection" (small pile) of the grouped data.
+
+//  Display album group by ReleasedLabel, ReleaseYear.
+//  Display the ReleasedYear and numbers of albums.
+//  List only the years with 2 or more albums release.
+//  For each album display the title, year of release and count of tracks
+
+//  Original collection (large pile of data)  Albums
+//  FIltering cannot be decided until the groups are created
+//  Grouping: ReleaseLabel, ReleaseYear
+//  Noe filter can be done on the group:  group.COunt >=2
+//  Report the year and number of albums, newsted query to report
+//  details per album:  Title, Year, # of tracks
+
+Albums
+	.GroupBy(a => new { a.ReleaseLabel, a.ReleaseYear }) //  Creating anonymous key set.
+	.Where(eachgPile => eachgPile.Count() > 2)
+	.OrderBy(eachgPile => eachgPile.Key.ReleaseLabel)
+	.Select(eachgPile => new
+	{
+		Label = eachgPile.Key.ReleaseLabel,
+		Year = eachgPile.Key.ReleaseYear,
+		NumberofAlbums = eachgPile.Count(),
+		AlbumsGroupItems = eachgPile  //  small pile (mini collection
+							.Select(eachgPileInstance => new
+							{
+								Title = eachgPileInstance.Title,
+								Year = eachgPileInstance.ReleaseYear,
+								NumberOfTracks = eachgPileInstance.Tracks.Count()
+								
+							}
+							)
+		
+
+	})
+
+
+
+
+
+
+
