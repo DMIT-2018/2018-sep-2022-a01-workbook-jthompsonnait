@@ -76,10 +76,10 @@ void Main()
 	//	resultSOD.Dump();
 	//else
 	//	Console.WriteLine($"No album found for ID  {albumID}");
-	
+
 	// .Distinct()
 	//  Removes duplicated reported items
-	
+
 	//  Obtain a list of customer countries
 	var resultDinstinct = Customers
 					.OrderBy(c => c.Country)
@@ -87,17 +87,65 @@ void Main()
 					.Distinct()
 					//.Dump()
 					;
-					
-//  .Take() and .SKip()
-//  in 1517, when you wanted to use your paginator
-//   the quesry method ws to return ONLY the needed records to display
-//  a)	You passed in the pagesize and pagenumber
-//	b)	the query was executed, return all rows
-//	c)	Set your out paramater to the .Count() of rows 
-//	d)	Calculated the number of rows to skip(pageNumber -1) * pagesize
-//	e)	On the return statement, against your collection, you used a .Skip and .Take
-//	Return variableName.SKip(rowsSkipped).Take(pagesize).ToList()
+
+	//  .Take() and .SKip()
+	//  in 1517, when you wanted to use your paginator
+	//   the quesry method ws to return ONLY the needed records to display
+	//  a)	You passed in the pagesize and pagenumber
+	//	b)	the query was executed, return all rows
+	//	c)	Set your out paramater to the .Count() of rows 
+	//	d)	Calculated the number of rows to skip(pageNumber -1) * pagesize
+	//	e)	On the return statement, against your collection, you used a .Skip and .Take
+	//	Return variableName.SKip(rowsSkipped).Take(pagesize).ToList()
+
+	//  Any and All
+	//	There are 205 genres on file
+
+	//  Show genres that have tracks which are not on any playlist.
+	Genres
+		.Where(g => g.Tracks.Any(tr => tr.PlaylistTracks.Count() == 0))
+		//.Dump()
+		;
+
+	Genres
+	.Where(g => g.Tracks.All(tr => tr.PlaylistTracks.Count() > 0))
+	//.Dump()
+	;
+
+	//  COmpare the track collection of 2 people using ALl and Any
+	//	Create a small anonymous collection for 2 people
+	//  Roberto Almeida (AlmeidaR) and Michelle Brooks (BrooksM)
+
+	var almida = PlaylistTracks
+		.Where(x => x.Playlist.UserName.Equals("AlmeidaR"))
+		.Select(x => new
+		{
+			Song = x.Track.Name,
+			Genre = x.Track.Genre.Name,
+			id = x.TrackId,
+			Artist = x.Track.Album.Artist.Name
+		})
+		.Distinct()
+		.OrderBy(x => x.Song)
+		.Dump()//110
+		;
+
+	var brooks = PlaylistTracks
+	.Where(x => x.Playlist.UserName.Equals("BrooksM"))
+	.Select(x => new
+	{
+		Song = x.Track.Name,
+		Genre = x.Track.Genre.Name,
+		id = x.TrackId,
+		Artist = x.Track.Album.Artist.Name
+	})
+	.Distinct()
+	.OrderBy(x => x.Song)
+	.Dump()//88
+	;
 	
+//  List the tracks
+
 }
 
 public class SongItem
