@@ -112,11 +112,11 @@ void Main()
 	//.Dump()
 	;
 
-	//  COmpare the track collection of 2 people using ALl and Any
+	//  Compare the track collection of 2 people using All and Any
 	//	Create a small anonymous collection for 2 people
 	//  Roberto Almeida (AlmeidaR) and Michelle Brooks (BrooksM)
 
-	var almida = PlaylistTracks
+	var listA = PlaylistTracks
 		.Where(x => x.Playlist.UserName.Equals("AlmeidaR"))
 		.Select(x => new
 		{
@@ -127,10 +127,10 @@ void Main()
 		})
 		.Distinct()
 		.OrderBy(x => x.Song)
-		.Dump()//110
+		//.Dump()//110
 		;
 
-	var brooks = PlaylistTracks
+	var listB = PlaylistTracks
 	.Where(x => x.Playlist.UserName.Equals("BrooksM"))
 	.Select(x => new
 	{
@@ -141,10 +141,48 @@ void Main()
 	})
 	.Distinct()
 	.OrderBy(x => x.Song)
-	.Dump()//88
+	//.Dump()//88
 	;
+
 	
-//  List the tracks
+	
+//  List the tracks that BOTH ROberto and MIchelle like
+//  COmpare 2 collections together (List A and List B)
+//  Assume ListA is Roberta and ListB is Michelle
+//  List is the collection you wish to report on.
+//  List B is what you wish to compare ListA to (no reporting)
+
+listA
+	.Where(lsta => listB.Any(lstb => lstb.id == lsta.id))
+	.OrderBy(lsta => lsta.Song)
+	//.Dump()
+	;
+
+	listB
+	.Where(lstb => listA.Any(lsta => lsta.id == lstb.id))
+	.OrderBy(lsta => lsta.Song)
+	//.Dump()
+	;
+
+	//	What songs does Roberta like but not Michelle
+	listA
+		.Where(lsta => !listB.Any(lstb => lstb.id == lsta.id))
+		.OrderBy(lsta => lsta.Song)
+	//	.Dump()
+		;
+
+	listA
+		.Where(lsta => listB.All(lstb => lstb.id != lsta.id))
+		.OrderBy(lsta => lsta.Song)
+		.Dump()
+		;
+	//  There maybe time that using a !Any() -> All(!relationship)
+//	 and a !All() -> Any(!relationship)
+
+//	Using All and Any in comparing 2 complex collections.
+//  If you collection is NOT a complex record (list of integer or string)
+//	 there is a Linq method call .Except that can be used to solve your Linq
+//    except
 
 }
 
