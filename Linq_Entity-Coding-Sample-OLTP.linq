@@ -51,7 +51,7 @@ void Main()
 		//	543	Burn
 		//	756	Child in Time
 
-		playlistName = null;//"hansenb1";
+		playlistName = "hansenb1";
 		int trackID = 822;
 
 		PlaylistTrackService_AddTrack(playlistName, username, trackID);
@@ -147,6 +147,14 @@ public List<PlaylistTrackInfo> PlaylistTrackService_FetchPlaylist(string playlis
 
 public void PlaylistTrackService_AddTrack(string playlistName, string username, int trackID)
 {
+	//  local variables
+	bool trackExist = false;
+	Playlists playlist = null;
+	int trackNumber = 0;
+	PlaylistTracks playlistTrackExist = null;
+
+	#region Business Logic and Parameter Exceptions
+	List<Exception> errorList = new List<Exception>();
 
 	//  Business Rules
 	//	There are processing rules that need to be satisfied for valid data.
@@ -168,7 +176,63 @@ public void PlaylistTrackService_AddTrack(string playlistName, string username, 
 	{
 		throw new ArgumentNullException("User name is missing");
 	}
+	#endregion
+	//  check that the incoming data exists
+	trackExist = Tracks
+					.Where(x => x.TrackId == trackID)
+					.Any();
+	if (!trackExist)
+	{
+		throw new ArgumentNullException("Selected track no longer is on file.  Refresh track table");
+	}
+
+	//  Business Rules
+	//  Check if playlist exists.
+	playlist = Playlists
+				.Where(x => x.Name == playlistName &&
+						x.UserName == username)
+						.FirstOrDefault();
+	//  does not exist
+	if (playlist == null)
+	{
+		playlist = new Playlists
+		{
+			Name = playlistName,
+			UserName = username,
+		};
+		//  stage (only in memory)
+		Playlists.Add(playlist);
+		trackNumber = 1;
+	}
+	else
+	{
+		playlistTrackExist = PlaylistTracks
+							.Where(x => x.TrackId == trackID &&
+							x.PlaylistId == playlist.PlaylistId)
+							.FirstOrDefault();
+		if (playlistTrackExist != null)
+		{
+			var songName = Tracks
+							.Where(x => x.TrackId == trackID)
+							.Select(x => x.Name);
+			errorList.Add(new Exception($"Selected track ({songName}) is already on the playlist");
+		}
+		else
+		{
+			trackNumber = PlaylistTracks
+							.Where(x => x.PlaylistId == playlist.PlaylistId)
+							.Count() + 1;
+		}
+	}
+
+
+
+
+
 }
+
+
+
 #endregion
 
 
