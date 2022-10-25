@@ -258,6 +258,24 @@ public void PlaylistTrackService_AddTrack(string playlistName, string username, 
 	
 	//  INSTEAD, do the staging using the "parent.navChildProperty.Add(xxx)
 	playlist.PlaylistTracks.Add(playlistTrackExist);
+	
+	//	Staging is completed
+	//	Commit the work (Transaction)
+	//	Committing the work needs a .SaveChanges()
+	//	A transaction has ONLY ONE .SaveChanges()
+	//	BUT what if you have discovered errors during the business process???
+	//	IF so, then throw all errors and DO NOT COMMIT!!!
+	if (errorList.Count > 0)
+	{
+		//  throw the list of bussiness processing error(s)
+		throw new AggregateException("Unable to add new track.  Check concerns", errorList);
+	}
+	else
+	{
+		//  consider data valid
+		//  has passed business processing rules
+		SaveChanges();
+	}
 
 	
 }
