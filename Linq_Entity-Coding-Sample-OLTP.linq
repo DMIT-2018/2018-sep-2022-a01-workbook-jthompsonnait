@@ -198,7 +198,7 @@ public void PlaylistTrackService_AddTrack(string playlistName, string username, 
 		playlist = new Playlists
 		{
 			Name = playlistName,
-			UserName = username,
+			UserName = username
 		};
 		//  stage (only in memory)
 		Playlists.Add(playlist);
@@ -225,10 +225,41 @@ public void PlaylistTrackService_AddTrack(string playlistName, string username, 
 		}
 	}
 
+	//  add the track to the playlist
+	//  create an instance for the playlist track
 
+	playlistTrackExist = new PlaylistTracks();
 
+	//  load values
+	playlistTrackExist.TrackId = trackID;
+	playlistTrackExist.TrackNumber = trackNumber;
+	
+	//  What about the second part of the primary key:  PlaylistID?
+	//	If the playlist exists, then we know the id:  playlistExists.PlaylistID
+	//	But if the playlis is new, we DO NOT know the ID.
+	
+	//  In the situation of a NEW playlist, even though we have created the
+	//		playlist instance (se above) it is ONLY staged!!!
+	//	This means that the actual sql record has NOT yet been created.
+	//	This means that the IDENITY value for the new playlist DOES NOT YET EXIST,
+	//	The vaoule of the playlist instance (playlistExist) is zero (0)
+	//	Therefore, we have a serious problem.
+	
+	//	Solution
+	//	It is built into the Entity Framework software and is based using the
+	//		navigational property in the PlayList pointing to it's "child".
+	
+	//	Staging a typical Add in the past was to reference the entity and
+	//		use the entity.Add(xxx).
+	//			_context.PlaylistTrack.add(playlistTrackExists)
+	//	If you use this statement the playlistID would be zero (0)
+	//		causing your transaction to abort.
+	//	WHY.	PKeys cannot be zero (0) (FKey to PKey problem)
+	
+	//  INSTEAD, do the staging using the "parent.navChildProperty.Add(xxx)
+	playlist.PlaylistTracks.Add(playlistTrackExist);
 
-
+	
 }
 
 
