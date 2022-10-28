@@ -32,8 +32,6 @@ void Main()
 										TrackService_FetchTrackBy(searchType, searchPattern);
 		//trackList_display.Dump();
 
-
-
 		//	PlaylistTrackService is the BLL class name
 		//  FetchPlaylist is the method call
 
@@ -54,7 +52,43 @@ void Main()
 		playlistName = "hansenb1";
 		int trackID = 822;
 
-		PlaylistTrackService_AddTrack(playlistName, username, trackID);
+		//PlaylistTrackService_AddTrack(playlistName, username, trackID);
+
+		//	On the webpage, the post method would have already have access to the
+		//  BindProperty variables containing the input values
+		playlistName = "hansenbtest";
+		List<PlaylistTrackTRX> tracklistInfo = new List<PlaylistTrackTRX>();
+		tracklistInfo.Add(new PlaylistTrackTRX()
+		{
+			SelectedTrack = false,
+			TrackID = 543,
+			TrackNumber = 1,
+			TrackInput = 6
+		});
+		tracklistInfo.Add(new PlaylistTrackTRX()
+		{
+			SelectedTrack = false,
+			TrackID = 756,
+			TrackNumber = 2,
+			TrackInput = 99
+		});
+		tracklistInfo.Add(new PlaylistTrackTRX()
+		{
+			SelectedTrack = true,
+			TrackID = 822,
+			TrackNumber = 3,
+			TrackInput = 8
+		});
+		tracklistInfo.Add(new PlaylistTrackTRX()
+		{
+			SelectedTrack = true,
+			TrackID = 793,
+			TrackNumber = 4,
+			TrackInput = 2
+		});
+
+		//	Call the service method to process data deletion
+		PlayListTrackService_RemoveTracks(playlistName, username, tracklistInfo);
 
 		#endregion
 	}
@@ -96,6 +130,14 @@ public class PlaylistTrackInfo
 	public int TrackNumber { get; set; }
 	public string SongName { get; set; }
 	public int Milliseconds { get; set; }
+}
+
+public class PlaylistTrackTRX
+{
+	public bool SelectedTrack { get; set; }
+	public int TrackID { get; set; }
+	public int TrackNumber { get; set; }
+	public int TrackInput { get; set; }
 }
 #endregion
 
@@ -215,7 +257,7 @@ public void PlaylistTrackService_AddTrack(string playlistName, string username, 
 			var songName = Tracks
 							.Where(x => x.TrackId == trackID)
 							.Select(x => x.Name);
-			errorList.Add(new Exception($"Selected track ({songName}) is already on the playlist");
+			errorList.Add(new Exception($"Selected track ({songName}) is already on the playlist"));
 		}
 		else
 		{
@@ -233,32 +275,32 @@ public void PlaylistTrackService_AddTrack(string playlistName, string username, 
 	//  load values
 	playlistTrackExist.TrackId = trackID;
 	playlistTrackExist.TrackNumber = trackNumber;
-	
+
 	//  What about the second part of the primary key:  PlaylistID?
 	//	If the playlist exists, then we know the id:  playlistExists.PlaylistID
 	//	But if the playlis is new, we DO NOT know the ID.
-	
+
 	//  In the situation of a NEW playlist, even though we have created the
 	//		playlist instance (se above) it is ONLY staged!!!
 	//	This means that the actual sql record has NOT yet been created.
 	//	This means that the IDENITY value for the new playlist DOES NOT YET EXIST,
 	//	The vaoule of the playlist instance (playlistExist) is zero (0)
 	//	Therefore, we have a serious problem.
-	
+
 	//	Solution
 	//	It is built into the Entity Framework software and is based using the
 	//		navigational property in the PlayList pointing to it's "child".
-	
+
 	//	Staging a typical Add in the past was to reference the entity and
 	//		use the entity.Add(xxx).
 	//			_context.PlaylistTrack.add(playlistTrackExists)
 	//	If you use this statement the playlistID would be zero (0)
 	//		causing your transaction to abort.
 	//	WHY.	PKeys cannot be zero (0) (FKey to PKey problem)
-	
+
 	//  INSTEAD, do the staging using the "parent.navChildProperty.Add(xxx)
 	playlist.PlaylistTracks.Add(playlistTrackExist);
-	
+
 	//	Staging is completed
 	//	Commit the work (Transaction)
 	//	Committing the work needs a .SaveChanges()
@@ -276,13 +318,83 @@ public void PlaylistTrackService_AddTrack(string playlistName, string username, 
 		//  has passed business processing rules
 		SaveChanges();
 	}
-
-	
 }
 
+public void PlayListTrackService_RemoveTracks(string playlistName, string username,
+												List<PlaylistTrackTRX> tracklistInfo)
+{
+	//  local variables
+	Playlists playlist = null;
+	PlaylistTracks playListTracks = null;
+	int trackNumber = 0;
 
+	//	We need a container to hold x number of exception messages
+	List<Exception> errorList = new List<Exception>();
 
+	//  parameter validation
+	if (string.IsNullOrWhiteSpace(playlistName))
+	{
+		throw new ArgumentNullException("Playlist name is missing");
+	}
+	if (string.IsNullOrWhiteSpace(username))
+	{
+		throw new ArgumentNullException("User name is missing");
+	}
+
+	int count = tracklistInfo.Count();
+	if (count == 0)
+	{
+		throw new ArgumentNullException("No list of tracks were submitted");
+	}
+	else
+	{
+		//	1) Obtain the tracks to keep
+		//	2) The SelectedTrack is a boolean field
+		//		false:	keep it
+		//		true:	remove ite
+		//	3) Create a query to extract the "keep" tracks from the incoming data.
+		IEnumerable<PlaylistTrackTRX> keepList = tracklistInfo
+												//.Where(x => x.SelectedTrack == false)
+												.Where(x => !x.SelectedTrack)
+												.OrderBy(x => x.TrackNumber);
+												
+		//  obtain the tracks to remove
+		IEnumerable<PlaylistTrackTRX> removeList = tracklistInfo
+													.Where(x => x.SelectedTrack);
+													
+			1
+			2
+			5
+			6
+			9
+			
+			1
+			2
+			3
+			4
+			5
+			
+			
+			
+			
+			
+			
+	}
+}
 #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
