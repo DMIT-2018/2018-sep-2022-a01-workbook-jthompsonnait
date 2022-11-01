@@ -90,7 +90,18 @@ void Main()
 		//	Call the service method to process data deletion
 		PlayListTrackService_RemoveTracks(playlistName, username, tracklistInfo);
 
+		//	call the service method to process the data
+		//PlaylistTrack_MoveTracks(playlistName, username, tracklistInfo)
+
+
 		#endregion
+	}
+	catch (AggregateException ex)
+	{
+		foreach (var error in ex.InnerExceptions)
+		{
+			error.Message.Dump();
+		}
 	}
 	catch (ArgumentNullException ex)
 	{
@@ -324,8 +335,8 @@ public void PlayListTrackService_RemoveTracks(string playlistName, string userna
 												List<PlaylistTrackTRX> tracklistInfo)
 {
 	//  local variables
-	Playlists playlist = null;
-	PlaylistTracks playListTracks = null;
+	Playlists playlistExist = null;
+	PlaylistTracks playListTrackExist = null;
 	int trackNumber = 0;
 
 	//	We need a container to hold x number of exception messages
@@ -357,30 +368,205 @@ public void PlayListTrackService_RemoveTracks(string playlistName, string userna
 												//.Where(x => x.SelectedTrack == false)
 												.Where(x => !x.SelectedTrack)
 												.OrderBy(x => x.TrackNumber);
-												
+
+
+
+
 		//  obtain the tracks to remove
 		IEnumerable<PlaylistTrackTRX> removeList = tracklistInfo
 													.Where(x => x.SelectedTrack);
-													
-			1
-			2
-			5
-			6
-			9
-			
-			1
-			2
-			3
-			4
-			5
-			
-			
-			
-			
-			
-			
+
+		foreach (PlaylistTrackTRX item in removeList)
+		{
+			playListTrackExist = PlaylistTracks
+							.Where(x => x.Playlist.Name.Equals(playlistName)
+								&& x.Playlist.UserName.Equals(username)
+								&& x.TrackId == item.TrackID)
+								.FirstOrDefault();
+
+			if (playListTrackExist != null)
+			{
+				PlaylistTracks.Remove(playListTrackExist);
+			}
+
+		}
+		trackNumber = 1;
+		foreach (PlaylistTrackTRX item in keepList)
+		{
+			playListTrackExist = PlaylistTracks
+							.Where(x => x.Playlist.Name.Equals(playlistName)
+								&& x.Playlist.UserName.Equals(username)
+								&& x.TrackId == item.TrackID)
+								.FirstOrDefault();
+			if (playListTrackExist != null)
+			{
+				playListTrackExist.TrackNumber = trackNumber;
+				PlaylistTracks.Update(playListTrackExist);
+
+				//  This library is not directly accessable by linqpad
+				//	EntityEntry<PlaylistTracks> updating = _context.Entry(playlistTracks)
+				//	updating.state = Mircsoft.EntityFrameworkCore.EntityState.Modify;
+
+				//	Get ready for next track
+				trackNumber++;
+			}
+			else
+			{
+				var songName = Tracks
+								.Where(x => x.TrackId == item.TrackID)
+								.Select(x => x.Name)
+								.SingleOrDefault();
+				errorList.Add(new Exception($"The track ({songName}) is no longer on file.  Please remove"));
+			}
+		}
+
+		if (errorList.Count() > 0)
+		{
+			throw new AggregateException("Unable to remove request tracks.  Check concern.", errorList);
+		}
+		else
+		{
+			SaveChanges();
+		}
+
 	}
 }
+
+public void PlaylistTrack_MoveTracks(string playlistName, string username,
+												List<PlaylistTrackTRX> tracklistInfo)
+{
+	//  local variables
+	Playlists playlistExist = null;
+	PlaylistTracks playlistTrackExist = null;
+	int trackNumber = 0;
+
+	//	We need a container to hold x number of exception messages
+	List<Exception> errorList = new List<Exception>();
+
+	//  parameter validation
+	if (string.IsNullOrWhiteSpace(playlistName))
+	{
+		throw new ArgumentNullException("Playlist name is missing");
+	}
+	if (string.IsNullOrWhiteSpace(username))
+	{
+		throw new ArgumentNullException("User name is missing");
+	}
+
+	int count = tracklistInfo.Count();
+	if (count == 0)
+	{
+		throw new ArgumentNullException("No list of tracks were submitted");
+	}
+	playlistExist = Playlists
+						.Where(x => x.Name.Equals(playlistName)
+								&& x.UserName.Equals(username))
+								.Select(x => x)
+								.FirstOrDefault();
+
+	if (playlistExist == null)
+	{
+		errorList.Add(new Exception($"Play list {playlistName} does not exist for this user."));
+	}
+	else
+	{
+		//	validation loop to check that the data is indeed a positive number
+		//	Use int.TryParse to check that the value to be tested is a number
+		//	Check the reuslt of TryParse against value of 1;
+
+		int tempNum = 0;
+		foreach (var track in tracklistInfo)
+		{
+			var songname = Tracks
+							.Where(x => x.TrackId == track.TrackID)
+							.Select(x => x.Name)
+							.SingleOrDefault();
+			if (int.TryParse(track.TrackInput.ToString(), out tempNum))
+			{
+				if (tempNum < 1)
+				{
+					errorList.Add(new Exception($"The track {songname} re-sequence value needs to be greater than 0.  Example: 3"));
+				}
+			}
+			else
+			{
+				errorList.Add(new Exception($"The track {songname} re-sequence value needs to be a number.  Example: 3"));
+			}
+		}
+
+		//	Sort the command model data list on the re-org value
+		//	in ascending order comparing x to y;
+		//	in descending order	comparing y to x
+		tracklistInfo.Sort((x, y) => x.TrackInput.CompareTo(y.TrackInput));
+
+		//	b)	unique new track numbers
+		//	The collection has been sorted in ascending order therefore the next
+		//		number must be equal to or greater thant he previous number.
+		//	One could check to see if the enxt number is +1 of the previous number
+		//		BUT rhe re-org look which does the actual re-sequence of numbers
+		//		will have that situation.
+		//		Therefore "holes" in the loop does not matter (logically)
+
+		for (int i = 0; i < tracklistInfo.Count() - 1; i++)
+		{
+			var songname1 = Tracks
+							.Where(x => x.TrackId == tracklistInfo[i].TrackID)
+							.Select(x => x.Name)
+							.SingleOrDefault();
+
+			var songname2 = Tracks
+				.Where(x => x.TrackId == tracklistInfo[i + 1].TrackID)
+				.Select(x => x.Name)
+				.SingleOrDefault();
+			if (tracklistInfo[i].TrackInput == tracklistInfo[i + 1].TrackInput)
+			{
+				errorList.Add(new Exception($"{songname1} and {songname2} have the same re-sequence value.  Re-sequence numbers must be unique"));
+			}
+
+		}
+
+		trackNumber = 1;
+		foreach (PlaylistTrackTRX item in tracklistInfo)
+		{
+			playlistTrackExist = PlaylistTracks
+									.Where(x => x.Playlist.Name.Equals(playlistName)
+									&& x.Playlist.UserName.Equals(username)
+									&& x.TrackId == item.TrackID)
+									.FirstOrDefault();
+			if (playlistTrackExist != null)
+			{
+				playlistTrackExist.TrackNumber = trackNumber;
+				PlaylistTracks.Update(playlistTrackExist);
+
+				//  This library is not directly accessable by linqpad
+				//	EntityEntry<PlaylistTracks> updating = _context.Entry(playlistTracks)
+				//	updating.state = Mircsoft.EntityFrameworkCore.EntityState.Modify;
+
+				//	Get ready for next track
+				trackNumber++;
+			}
+			else
+			{
+				var songName = Tracks
+								.Where(x => x.TrackId == item.TrackID)
+								.Select(x => x.Name)
+								.SingleOrDefault();
+				errorList.Add(new Exception($"The track ({songName}) is no longer on file.  Please remove"));
+			}
+		}
+
+		if (errorList.Count() > 0)
+		{
+			throw new AggregateException("Unable to remove request tracks.  Check concern.", errorList);
+		}
+		else
+		{
+			SaveChanges();
+		}
+
+	}
+}
+
 #endregion
 
 
