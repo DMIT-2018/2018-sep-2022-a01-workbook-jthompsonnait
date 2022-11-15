@@ -84,12 +84,6 @@
                 <textarea rows="5" cols="50" placeholder="enter message"
                           asp-for="MessageBody"></textarea>
             </label>
-
-
-
-
-
-
             <button type="submit" value="radiocheckarea" id="theRadioCheckAreaButton"
                     name="theRadioCheckAreaButton" asp-page-handler="RadioCheckArea">
                 Radio/Check/Area Submit
@@ -99,6 +93,35 @@
     <div class=onethird>
         <h3>List and Slider</h3>
         <form method="post">
+            <label>
+                Slect your favourite Ride
+                <select asp-for="MyRide">
+                    <option value="0">Select ride ...</option>
+                    @foreach (var ride in Model.Rides)
+                    {
+                        <option value="@ride.ValueID">@ride.DisplayText</option>
+                    }
+                </select>
+            </label>
+            <br/>
+            <label>
+                Select your favorite Vacation Spot
+                <input type="text" asp-for="VacationSpot"
+                       list="VacationChoices" />
+                <datalist id="VacationChoices">
+                    @foreach (var spot in Model.VacationSpots)
+                    {
+                        <option value="@spot"></option>
+                        //  <option value="@spot">@spot</option>
+                    }
+                </datalist>
+            </label>
+            <br/>
+            <label>
+                Rate the form control reivew (bad < - > good)
+                <input type="range" min="0" max="10" step="1" value="5"
+                       asp-for="ReviewRating"/>
+            </label>
             <button type="submit" value="listslider" id="theListSliderButton"
                     name="theListSliderButton" asp-page-handler="ListSlider">
                 Slider Submit
