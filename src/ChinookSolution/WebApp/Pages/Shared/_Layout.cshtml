@@ -52,6 +52,27 @@
                         </li>
                     </ul>
                 </li>
+                @*
+                    setup a submenu (drop down menu) using the holiday.css
+                        see holidaycss.js.org
+                        
+                        Start with an li tag
+                        Within: Add a span tag:  entry on the menu root
+                                add ul tag: starts the drop down menu
+                                Within: add any number of li menu items
+                *@
+                <li>
+                    <span>My Project</span>
+                    <ul>
+                        @*You must change the folder location when setting up your project
+                        ie:  /MyProject/XXXX to /MyProjectName/XXXX
+                        *@
+                        <li>
+                            <a asp-area="" asp-page="/MyProject/Index">
+                                Default Sample Page Home
+                            </a></li>
+                    </ul>
+                </li>
                 <li>
                     <a asp-area="" asp-page="/Privacy">Privacy</a>
                 </li>
