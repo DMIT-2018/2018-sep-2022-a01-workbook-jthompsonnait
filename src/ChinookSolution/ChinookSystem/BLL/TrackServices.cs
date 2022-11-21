@@ -1,6 +1,12 @@
-﻿#region Additional Namespacs
+﻿#nullable disable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+#region Additional Namespaces
 using ChinookSystem.DAL;
-using ChinookSystem.Entities;
 using ChinookSystem.ViewModels;
 #endregion
 
@@ -8,12 +14,9 @@ namespace ChinookSystem.BLL
 {
     public class TrackServices
     {
-        //  This class needs to be accessed by an "outside user" (WebApp)
-        //      therefore the class needs to be public
 
-        #region Constructor and Context Dependency
-
-        private Chinook2018Context _context;
+        #region Constructor for Context Dependency
+        private readonly Chinook2018Context _context;
 
         internal TrackServices(Chinook2018Context context)
         {
@@ -21,14 +24,9 @@ namespace ChinookSystem.BLL
         }
         #endregion
 
-        #region Services
-
-        //  Services are methods
-
-        //  Query to obtain the DbVersion data
-
         #region Queries
-        public List<TrackSelection> Track_FetchTracksBy(string searcharg, string searchby)
+        public List<TrackSelection> Track_FetchTracksBy(string searcharg, 
+            string searchby, int pagenumber, int pagesize, out int totalcount)
         {
             if (string.IsNullOrWhiteSpace(searcharg))
             {
@@ -39,25 +37,25 @@ namespace ChinookSystem.BLL
                 throw new ArgumentNullException("No search style submitted");
             }
             IEnumerable<TrackSelection> results = _context.Tracks
-                .Where(x => (x.Album.Artist.Name.Contains(searcharg) &&
-                             searchby.Equals("Artist")) ||
-                            (x.Album.Title.Contains(searcharg) &&
-                             searchby.Equals("Album")))
-                .Select(x => new TrackSelection
-                {
-                    TrackId = x.TrackId,
-                    SongName = x.Name,
-                    AlbumTitle = x.Album.Title,
-                    ArtistName = x.Album.Artist.Name,
-                    Milliseconds = x.Milliseconds,
-                    Price = x.UnitPrice
-                });
-            return results.ToList();
+                                        .Where(x => (x.Album.Artist.Name.Contains(searcharg) &&
+                                                    searchby.Equals("Artist")) ||
+                                                    (x.Album.Title.Contains(searcharg) &&
+                                                    searchby.Equals("Album")))
+                                        .Select(x => new TrackSelection
+                                        {
+                                            TrackId = x.TrackId,
+                                            SongName = x.Name,
+                                            AlbumTitle = x.Album.Title,
+                                            ArtistName = x.Album.Artist.Name,
+                                            Milliseconds = x.Milliseconds,
+                                            Price = x.UnitPrice
+                                        })
+                                        .OrderBy(x => x.SongName);
+            totalcount = results.Count();
+            int rowsskipped = (pagenumber - 1) * pagesize;
+
+            return results.Skip(rowsskipped).Take(pagesize).ToList();
         }
-
-
-        #endregion
-
 
         #endregion
     }
