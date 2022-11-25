@@ -1,0 +1,125 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+<h2>Sale Lines</h2>
+<form method="post">
+    <table width="100%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:30%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <thead>
+            <tr>
+                <th> </th>
+                <th>ProductID</th>
+                <th>ProductName</th>
+                <th>UnitPrice</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var saleItem in Model.NewSaleItems)
+            {
+                <tr>
+                    <td>
+                        <input type="hidden" name="NewSaleItems.Index" value="@saleItem.ProductID" />
+                        @* name and value are used instead of asp-for
+                    these are used here because we are going to a list of item
+                    and we need to index the individual instances in some fashion*@
+                        <button type="submit" name="RemoveProductID" value="@saleItem.ProductID"
+                            asp-page-handler="RemoveItem">
+                            Remove
+                        </button>
+                    </td>
+                    <td>
+                        @* tie value to incoming data index (see button above)
+                    The item.Name is the field of interest*@
+                        <input type="hidden" name="NewSaleItems[@saleItem.ProductID].ProductID" value="@saleItem.ProductID" readonly />
+                        <span style="display:inline-block; width: 16px; height: 16px; background-color:@saleItem.ProductID"></span>
+                        @saleItem.ProductID
+                    </td>
+                    <td>
+                        @* tie value to incoming data index (see button above) *@
+                        <input type="hidden" name="NewSaleItems[@saleItem.ProductID].ProductName" value="@saleItem.ProductName" readonly />
+                        @saleItem.ProductName
+                    </td>
+                    <td>
+                        @* tie value to incoming data index (see button above) *@
+                        <input type="number" name="NewSaleItems[@saleItem.ProductID].UnitPrice" value="@saleItem.UnitPrice" min="0.00" step="0.01"/>
+                    </td>
+                    <td>
+                        <input type="number" name="NewSaleItems[@saleItem.ProductID].Quantity" value="@saleItem.Quantity" min="0" step="0"/>
+                    </td>
+                    <td>
+                        @* tie value to incoming data index (see button above) *@
+                        <input type="hidden" name="NewSaleItems[@saleItem.ProductID].Total" value="@saleItem.Total" readonly />
+                        @saleItem.Total
+                    </td>
+                    <td>
+                        <input type="hidden" name="NewSaleItems.Refresh" value="@saleItem.ProductID" />
+                        @* name and value are used instead of asp-for
+                    these are used here because we are going to a list of item
+                    and we need to index the individual instances in some fashion*@
+                        <button type="submit" name="RefreshProductID" value="@saleItem.ProductID"
+                            asp-page-handler="RefreshItem">
+                            Refresh
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <br />
+    <br />
+    <h2>Inventory</h2>
+    <table>
+        <thead>
+            <tr>
+                <th> </th>
+                <th>ProductID</th>
+                <th>ProductName</th>
+                <th>UnitPrice</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <input type="hidden" name="Items.Index" value="@item.ProductID" />
+                        @* name and value are used instead of asp-for
+                    these are used here because we are going to a list of item
+                    and we need to index the individual instances in some fashion*@
+                        <button type="submit" name="SelectedProductID" value="@item.ProductID"
+                            asp-page-handler="AddItem">
+                            Add
+                        </button>
+                    </td>
+                    <td>
+                        @* tie value to incoming data index (see button above)
+                    The item.Name is the field of interest*@
+                        <input type="hidden" name="Items[@item.ProductID].ProductID" value="@item.ProductID" readonly />
+                        <span style="display:inline-block; width: 16px; height: 16px; background-color:@item.ProductID"></span>
+                        @item.ProductID
+                    </td>
+                    <td>
+                        @* tie value to incoming data index (see button above) *@
+                        <input type="hidden" name="Items[@item.ProductID].ProductName" value="@item.ProductName" readonly />
+                        @item.ProductName
+                    </td>
+                    <td>
+                        @* tie value to incoming data index (see button above) *@
+                        <input type="hidden" name="Items[@item.ProductID].UnitPrice" value="@item.UnitPrice" readonly />
+                        @item.UnitPrice
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

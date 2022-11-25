@@ -253,6 +253,46 @@ namespace WebApp.Pages.SamplePages
                 return Page();
             }
             catch (Exception ex)
+            {a
+                ErrorMessage = GetInnerException(ex).Message;
+                GetTrackInfo();
+                GetPlaylist();
+
+                return Page();
+            }
+
+        }
+
+
+
+        public IActionResult OnPostReOrg()
+        {
+            try
+            {
+                //Add the code to process the list of tracks via the service.
+
+                return RedirectToPage(new
+                {
+                    searchBy = string.IsNullOrWhiteSpace(searchBy) ? " " : searchBy.Trim(),
+                    searchArg = string.IsNullOrWhiteSpace(searchArg) ? " " : searchArg.Trim(),
+                    playlistname = playlistname
+                });
+            }
+            catch (AggregateException ex)
+            {
+
+                ErrorMessage = "Unable to process remove tracks";
+                foreach (var error in ex.InnerExceptions)
+                {
+                    ErrorDetails.Add(error.Message);
+
+                }
+                GetTrackInfo();
+                GetPlaylist();
+
+                return Page();
+            }
+            catch (Exception ex)
             {
                 ErrorMessage = GetInnerException(ex).Message;
                 GetTrackInfo();
@@ -262,6 +302,7 @@ namespace WebApp.Pages.SamplePages
             }
 
         }
+
 
         private Exception GetInnerException(Exception ex)
         {
