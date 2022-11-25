@@ -10,10 +10,10 @@ namespace WebApp.Pages
         private readonly ILogger<IndexModel> _logger;
         private readonly ProductServices _productServices;
 
-        //  command model (Will be updating the table/entity with these records/items)
+        //  command model (Will be updating the table/entity with these records/items)  //  Sales Lines
         [BindProperty] public List<NorthWind.ViewModel.ProductInfo> NewSaleItems { get; set; } = new();
 
-        //  query model (This is the initial data that we received from our entities)
+        //  query model (This is the initial data that we received from our entities)  //  Inventory
         [BindProperty] public List<NorthWind.ViewModel.ProductInfo> Items { get; set; }
 
         //  product id that is used to select from my items and transfer to my sales itesm
@@ -55,6 +55,7 @@ namespace WebApp.Pages
                 //  add item (command model) to  sale item list
                 NewSaleItems.Add(selectedItem);
             }
+            //  OnGet does NOT Fire
             return Page();
         }
 
@@ -70,9 +71,11 @@ namespace WebApp.Pages
                 Items.Add(_productServices.GetProductByProductID(RemoveProductID));
                 Items = Items.OrderBy(x => x.ProductName).ToList();
             }
+            //  OnGet does NOT Fire
             return Page();
         }
 
+        //  Refresh line total
         public IActionResult OnPostRefreshItem()
         {
             var selectedItem = NewSaleItems.SingleOrDefault(x => x.ProductID == RefreshProductID);
@@ -80,6 +83,7 @@ namespace WebApp.Pages
             {
                 selectedItem.Total = selectedItem.UnitPrice * selectedItem.Quantity;
             }
+            //  OnGet does NOT Fire
             return Page();
         }
     }
