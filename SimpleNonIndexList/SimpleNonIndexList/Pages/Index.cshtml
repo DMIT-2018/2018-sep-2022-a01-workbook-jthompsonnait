@@ -1,0 +1,51 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+<main style="display:flex">
+    <form method="post">
+        <div style="display:flex;">
+            <section class="lefthalfpage">
+                <label>
+                    Name
+                    <input type="text" asp-for="EmployeeName" />
+                </label>
+                <button type="submit" asp-page-handler="AddToEmployeeList">Add to employee list</button>
+                
+            </section>
+        <section class="righthalfpage">
+            <table>
+                <thead>
+                @*used for column titles*@
+                <tr>
+                    <th> </th>
+                    <th>Names</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var employee in Model.Employees)
+                {
+                    <tr>
+                        <td>
+                            <input type="hidden" name="Employees.Index" value="@employee.EmployeeId"/>
+                            <button type="submit" name="RemoveEmployeeID" value="@employee.EmployeeId"
+                                    asp-page-handler="RemoveEmployee">
+                                Remove
+                            </button>
+                        </td>
+                        <td>
+                            <input type="hidden" name="Employees[@employee.EmployeeId].EmployeeID" value="@employee.EmployeeId" readonly/>
+                        </td>
+                        <td>
+                            <input type="hidden" name="Employees[@employee.EmployeeId].Name" value="@employee.Name" readonly/>
+                            @employee.Name
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </section>
+        </div>
+    </form>
+</main>
