@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NorthWind.ViewModel
 {
-    public class ProductInfo
+    public class ProductViewModel
     {
         public int ProductID { get; set; }
         public string ProductName { get; set; }

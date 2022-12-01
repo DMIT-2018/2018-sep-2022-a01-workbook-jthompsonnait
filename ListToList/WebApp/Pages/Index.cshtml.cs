@@ -11,10 +11,10 @@ namespace WebApp.Pages
         private readonly ProductServices _productServices;
 
         //  command model (Will be updating the table/entity with these records/items)  //  Sales Lines
-        [BindProperty] public List<NorthWind.ViewModel.ProductInfo> NewSaleItems { get; set; } = new();
+        [BindProperty] public List<NorthWind.ViewModel.ProductViewModel> NewSaleItems { get; set; } = new();
 
         //  query model (This is the initial data that we received from our entities)  //  Inventory
-        [BindProperty] public List<NorthWind.ViewModel.ProductInfo> Items { get; set; }
+        [BindProperty] public List<NorthWind.ViewModel.ProductViewModel> Items { get; set; }
 
         //  product id that is used to select from my items and transfer to my sales itesm
         [BindProperty] public int SelectedProductID { get; set; }

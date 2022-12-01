@@ -26,11 +26,11 @@ namespace NorthWind.BLL
         //  Services are methods
 
         //  Query to obtain the product data
-        public List<ViewModel.ProductInfo> GetProducts()
+        public List<ViewModel.ProductViewModel> GetProducts()
         {
             return _context.Products
                 .OrderBy(x => x.ProductName)
-                .Select(x => new ViewModel.ProductInfo()
+                .Select(x => new ViewModel.ProductViewModel()
                 {
                     ProductID = x.ProductID,
                     ProductName = x.ProductName,
@@ -41,12 +41,12 @@ namespace NorthWind.BLL
                 .ToList();
         }
 
-        public ViewModel.ProductInfo GetProductByProductID(int productID)
+        public ViewModel.ProductViewModel GetProductByProductID(int productID)
         {
             return _context.Products
                 .Where(x => x.ProductID == productID)
                 .OrderBy(x => x.ProductName)
-                .Select(x => new ViewModel.ProductInfo()
+                .Select(x => new ViewModel.ProductViewModel()
                     {
                         ProductID = x.ProductID,
                         ProductName = x.ProductName,
