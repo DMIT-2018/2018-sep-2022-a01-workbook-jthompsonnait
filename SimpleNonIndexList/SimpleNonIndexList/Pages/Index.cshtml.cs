@@ -21,12 +21,12 @@ namespace SimpleNonIndexList.Pages
 
         public void OnGet()
         {
-
+     
         }
 
         public void OnPostRemoveEmployee()
         {
-            var selectedItem = Employees.SingleOrDefault(x => x.EmployeeId == RemoveEmployeeID);
+            var selectedItem = Employees.FirstOrDefault(x => x.EmployeeId == RemoveEmployeeID);
             if (selectedItem != null)
             {
                 Employees.Remove(selectedItem);
@@ -35,12 +35,12 @@ namespace SimpleNonIndexList.Pages
 
         public void OnPostAddToEmployeeList()
         {
-            int maxId = Employees.Count == 0
-                ? 1
-                : Employees.OrderBy(x => x.EmployeeId)
-                    .Max(x => x.EmployeeId) + 1;
-            Employees.Add(new Employee() { EmployeeId = maxId, Name = EmployeeName });
-            
+            int maxID = Employees.Count == 0
+               ? 1
+               : Employees.OrderBy(x => x.EmployeeId)
+                   .Max(x => x.EmployeeId) + 1;
+            Employees.Add(new Employee() { EmployeeId = maxID, Name = EmployeeName });
+
         }
     }
 }

@@ -33,6 +33,7 @@
                                     asp-page-handler="RemoveEmployee">
                                 Remove
                             </button>
+                                    @employee.EmployeeId
                         </td>
                         <td>
                             <input type="hidden" name="Employees[@employee.EmployeeId].EmployeeID" value="@employee.EmployeeId" readonly/>
