@@ -2,7 +2,6 @@
   <Connection>
     <ID>8f6c621e-f256-443a-94b4-98581ddcde18</ID>
     <NamingServiceVersion>2</NamingServiceVersion>
-    <Persist>true</Persist>
     <Server>.</Server>
     <AllowDateOnlyTimeOnly>true</AllowDateOnlyTimeOnly>
     <DeferDatabasePopulation>true</DeferDatabasePopulation>
@@ -44,3 +43,6 @@ years = 2000;
 Albums
 	.Where(x => x.ReleaseYear == years)
 	.Select(x => x).Dump();
+	
+//  Change to code for testing commits
+
